@@ -6,3 +6,19 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model Director {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  movies    Movie[]
+}
+
+model Movie {
+  id            String      @id @default(uuid())
+  title         String
+  description   String?
+  releaseYear   Int
+  genre         String
+  directorId    String
+  director      Director    @relation(fields: [directorId], references: [id], onDelete: Restrict)
+}
