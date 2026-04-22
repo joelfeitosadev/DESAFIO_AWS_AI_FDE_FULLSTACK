@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 import type { RequestHandler} from 'express';
-import { createDirector, getAllDirectors } from '../services/directorService.js'
+import { createDirector, getAllDirectors, getDirectorById } from '../services/directorService.js'
 
 export const create: RequestHandler = async (req, res) => {
   try {
@@ -23,4 +23,15 @@ export const create: RequestHandler = async (req, res) => {
 export const getAll: RequestHandler = async (req, res) => {
   const directors = await getAllDirectors();
   res.status(200).json(directors);
+};
+
+export const getById: RequestHandler = async (req, res) => {
+  const { id } = req.params;
+  const director = await getDirectorById(id as string);
+
+  if(!director) {
+    return res.status(404).json({ error: 'Director not found' });
+  }
+
+  res.status(200).json(director);
 };

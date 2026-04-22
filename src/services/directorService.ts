@@ -16,3 +16,7 @@ export const createDirector = async (data: DirectorInput) => {
 export const getAllDirectors = async () => {
   return prisma.director.findMany();
 };
+
+export const getDirectorById = async (id: string) => {
+  return prisma.director.findUnique({ where: { id } });
+};
