@@ -6,7 +6,7 @@ export const create: RequestHandler = async (req, res) => {
   try {
     const { title, description, releaseYear, genre, directorId } = req.body;
     const movie = await createMovie({ title, description, releaseYear, genre, directorId });
-    
+
     res.status(201).json(movie);
   } catch (error) {
     if (error instanceof Error) {
@@ -21,9 +21,10 @@ export const create: RequestHandler = async (req, res) => {
 
 export const getAllByParams: RequestHandler = async (req, res) => {
   try {
-    const { genre, releaseYear } = req.query;
-    const filters: { genre?: string; releaseYear?: number } = {};
+    const { title, genre, releaseYear } = req.query;
+    const filters: { title?: string; genre?: string; releaseYear?: number } = {};
 
+    if (title) { filters.title = String(title); }
     if (genre) { filters.genre = String(genre); }
     if (releaseYear) { filters.releaseYear = Number(releaseYear); }
 

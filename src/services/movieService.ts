@@ -38,9 +38,13 @@ export const createMovie = async (data: CreateMovieInput) => {
 };
 
 export const getAllMoviesByParams = async (filters: MovieFilters) => {
-  return prisma.movie.findMany({
-    where: filters,
-  });
+  const where: Prisma.MovieWhereInput = {};
+
+  if (filters.title) where.title = { contains: filters.title };
+  if (filters.genre) where.genre = filters.genre;
+  if (filters.releaseYear) where.releaseYear = filters.releaseYear;
+
+  return prisma.movie.findMany({ where });
 };
 
 export const getMovieById = async (id: string) => {
