@@ -67,3 +67,9 @@ export const updateMovie = async (id: string, data: CreateMovieInput) => {
     data,
   });
 };
+
+export const deleteMovie = async (id: string) => {
+  return prisma.movie.delete({
+    where: { id },
+  });
+};

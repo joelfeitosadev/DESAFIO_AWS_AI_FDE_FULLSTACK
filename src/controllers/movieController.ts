@@ -1,5 +1,5 @@
 import type { RequestHandler } from 'express';
-import { createMovie, getAllMoviesByParams, getMovieById, updateMovie } from '../services/movieService.js';
+import { createMovie, getAllMoviesByParams, getMovieById, updateMovie, deleteMovie } from '../services/movieService.js';
 
 export const create: RequestHandler = async (req, res) => {
   try {
@@ -63,6 +63,16 @@ export const update: RequestHandler = async (req, res) => {
     });
 
     res.status(200).json(movie);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const remove: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await deleteMovie(id as string);
+    res.status(204).send();
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
