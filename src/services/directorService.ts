@@ -41,3 +41,10 @@ export const deleteDirectorById = async (id: string) => {
 
   return prisma.director.delete({ where: { id }});
 }
+
+export const getDirectorMovies = async (id: string) => {
+  const director = await prisma.director.findUnique({ where: { id } });
+  if (!director) throw new Error('Director not found');
+
+  return prisma.movie.findMany({ where: { directorId: id } });
+};
