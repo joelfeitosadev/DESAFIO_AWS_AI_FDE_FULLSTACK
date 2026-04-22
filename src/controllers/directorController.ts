@@ -21,19 +21,26 @@ export const create: RequestHandler = async (req, res) => {
 };
 
 export const getAll: RequestHandler = async (req, res) => {
-  const directors = await getAllDirectors();
-  res.status(200).json(directors);
+  try {
+    const directors = await getAllDirectors();
+    res.status(200).json(directors);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
 };
 
 export const getById: RequestHandler = async (req, res) => {
-  const { id } = req.params;
-  const director = await getDirectorById(id as string);
+  try {
+    const { id } = req.params;
+    const director = await getDirectorById(id as string);
 
-  if(!director) {
-    return res.status(404).json({ error: 'Director not found' });
+    if(!director) {
+      return res.status(404).json({ error: 'Director not found' });
+    }
+    res.status(200).json(director);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
   }
-
-  res.status(200).json(director);
 };
 
 export const update: RequestHandler = async (req, res) => {
