@@ -1,8 +1,5 @@
 import { prisma } from '../database/index.js';
-
-export interface DirectorInput {
-  name: string;
-}
+import type { DirectorInput } from '../interfaces/Director.js';
 
 export const createDirector = async (data: DirectorInput) => {
   const exists = await prisma.director.findUnique({ where: { name: data.name } });

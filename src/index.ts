@@ -4,7 +4,7 @@ import directorRoutes from './routes/directorRoutes.js';
 import moviesRoutes from './routes/movieRoutes.js';
 import { requestLogger } from './middlewares/logger.js';
 import type { Request, Response, NextFunction } from 'express';
-import type { HttpError } from './controllers/directorController.js'
+import type { HttpError } from './interfaces/HttpError.js'
 
 const app = express();
 const PORT = process.env.PORT || 3000;

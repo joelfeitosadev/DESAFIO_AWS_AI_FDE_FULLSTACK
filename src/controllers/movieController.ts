@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import type { RequestHandler } from 'express';
 import { createMovie, getAllMoviesByParams, getMovieById, updateMovie, deleteMovie } from '../services/movieService.js';
-import type { HttpError } from './directorController.js'
+import type { HttpError } from '../interfaces/HttpError.js'
 
 export const create: RequestHandler = async (req, res, next) => {
   try {

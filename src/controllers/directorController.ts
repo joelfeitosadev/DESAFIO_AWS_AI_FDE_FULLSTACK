@@ -1,10 +1,7 @@
 import { Prisma } from '@prisma/client';
 import type { RequestHandler} from 'express';
 import { createDirector, getAllDirectors, getDirectorById, updateDirector, deleteDirectorById, getDirectorMovies } from '../services/directorService.js'
-
-export interface HttpError extends Error {
-  status?: number;
-}
+import type { HttpError } from '../interfaces/HttpError.js'
 
 export const create: RequestHandler = async (req, res, next) => {
   try {
@@ -13,7 +10,7 @@ export const create: RequestHandler = async (req, res, next) => {
 
     res.status(201).json(director);
   } catch (error) {
-    const err = error as HttpError; // Casting controlado para a nossa interface
+    const err = error as HttpError; 
     err.status = err.message.includes('already exists') ? 409 : 400;
     next(err);
   }

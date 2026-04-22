@@ -1,19 +1,6 @@
 import { prisma } from '../database/index.js';
 import { Prisma } from '@prisma/client';
-
-interface CreateMovieInput {
-  title: string;
-  description?: string;
-  releaseYear: number;
-  genre: string;
-  directorId: string;
-}
-
-export interface MovieFilters {
-  title?: string;
-  genre?: string;
-  releaseYear?: number;
-}
+import type { CreateMovieInput, MovieFilters } from '../interfaces/Movie.js';
 
 export const createMovie = async (data: CreateMovieInput) => {
   const director = await prisma.director.findUnique({ where: { id: data.directorId } });
