@@ -62,6 +62,10 @@ export const updateMovie = async (id: string, data: CreateMovieInput) => {
     },
   });
 
+  if (existingMovie && existingMovie.id !== id) {
+    throw new Error('Movie already exists for this director and year');
+  }
+
   return prisma.movie.update({
     where: { id },
     data,
