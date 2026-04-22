@@ -1,4 +1,5 @@
 import { prisma } from '../database/index.js';
+import { Prisma } from '@prisma/client';
 
 interface CreateMovieInput {
   title: string;
@@ -6,6 +7,12 @@ interface CreateMovieInput {
   releaseYear: number;
   genre: string;
   directorId: string;
+}
+
+export interface MovieFilters {
+  title?: string;
+  genre?: string;
+  releaseYear?: number;
 }
 
 export const createMovie = async (data: CreateMovieInput) => {
@@ -28,4 +35,10 @@ export const createMovie = async (data: CreateMovieInput) => {
   }
 
   return prisma.movie.create({ data });
+};
+
+export const getAllMoviesByParams = async (filters: MovieFilters) => {
+  return prisma.movie.findMany({
+    where: filters,
+  });
 };

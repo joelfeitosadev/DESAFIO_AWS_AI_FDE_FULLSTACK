@@ -1,5 +1,5 @@
 import type { RequestHandler } from 'express';
-import { createMovie } from '../services/movieService.js';
+import { createMovie, getAllMoviesByParams } from '../services/movieService.js';
 
 export const create: RequestHandler = async (req, res) => {
   try {
@@ -15,6 +15,21 @@ export const create: RequestHandler = async (req, res) => {
     if (error instanceof Error) {
       return res.status(400).json({ error: error.message });
     }
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getAllByParams: RequestHandler = async (req, res) => {
+  try {
+    const { genre, releaseYear } = req.query;
+    const filters: { genre?: string; releaseYear?: number } = {};
+
+    if (genre) { filters.genre = String(genre); }
+    if (releaseYear) { filters.releaseYear = Number(releaseYear); }
+
+    const movies = await getAllMoviesByParams(filters);
+    res.status(200).json(movies);
+  } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
