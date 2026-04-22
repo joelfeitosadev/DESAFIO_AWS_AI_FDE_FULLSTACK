@@ -1,5 +1,5 @@
 import type { RequestHandler } from 'express';
-import { createMovie, getAllMoviesByParams } from '../services/movieService.js';
+import { createMovie, getAllMoviesByParams, getMovieById } from '../services/movieService.js';
 
 export const create: RequestHandler = async (req, res) => {
   try {
@@ -29,6 +29,21 @@ export const getAllByParams: RequestHandler = async (req, res) => {
 
     const movies = await getAllMoviesByParams(filters);
     res.status(200).json(movies);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getById: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const movie = await getMovieById(id as string)
+
+    if (!movie) {
+      res.status(404).json({ error: 'Movie not found' });
+    }
+
+    res.status(200).json(movie)
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }

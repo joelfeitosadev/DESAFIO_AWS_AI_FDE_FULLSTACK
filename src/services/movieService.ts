@@ -42,3 +42,7 @@ export const getAllMoviesByParams = async (filters: MovieFilters) => {
     where: filters,
   });
 };
+
+export const getMovieById = async (id: string) => {
+  return prisma.movie.findUnique({ where: { id } });
+};
