@@ -5,12 +5,8 @@ import { createMovie, getAllMoviesByParams, getMovieById, updateMovie, deleteMov
 export const create: RequestHandler = async (req, res) => {
   try {
     const { title, description, releaseYear, genre, directorId } = req.body;
-
-    if (!title || !releaseYear || !genre || !directorId) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
     const movie = await createMovie({ title, description, releaseYear, genre, directorId });
+    
     res.status(201).json(movie);
   } catch (error) {
     if (error instanceof Error) {

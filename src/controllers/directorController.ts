@@ -5,11 +5,8 @@ import { createDirector, getAllDirectors, getDirectorById, updateDirector, delet
 export const create: RequestHandler = async (req, res) => {
   try {
     const { name } = req.body;
-    if(!name || typeof name !== 'string') {
-      return res.status(400).json({ error: 'Name is required and must be a string' });
-    }
-
     const director = await createDirector({ name });
+    
     res.status(201).json(director);
   } catch (error) {
     if (error instanceof Error && error.message.includes('already exists')) {
