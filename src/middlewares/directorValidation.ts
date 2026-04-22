@@ -4,7 +4,7 @@ export const validateDirector: RequestHandler = (req, res, next) => {
   const { name } = req.body;
 
   if (!name || typeof name !== 'string') {
-    return res.status(400).json({ error: 'Nmae is required and must be a string' });
+    return res.status(400).json({ error: 'Name is required and must be a string' });
   }
 
   if (name.length < 3 || name.length > 50) {
