@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 import type { RequestHandler} from 'express';
-import { createDirector} from '../services/directorService.js'
+import { createDirector, getAllDirectors } from '../services/directorService.js'
 
 export const create: RequestHandler = async (req, res) => {
   try {
@@ -18,4 +18,9 @@ export const create: RequestHandler = async (req, res) => {
 
     res.status(400).json({ error: 'Invalid data' });
   }
+};
+
+export const getAll: RequestHandler = async (req, res) => {
+  const directors = await getAllDirectors();
+  res.status(200).json(directors);
 };
