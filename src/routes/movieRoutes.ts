@@ -7,7 +7,7 @@ const router = Router();
 router.post('/', validateMovie, create);
 router.get('/', getAllByParams);
 router.get('/:id', getById);
-router.put('/:id', update);
+router.put('/:id', validateMovie,update);
 router.delete('/:id', remove);
 
 export default router;
