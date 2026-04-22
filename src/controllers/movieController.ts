@@ -16,7 +16,8 @@ export const create: RequestHandler = async (req, res, next) => {
     } else if (err.message === 'Director not found') {
       err.status = 404;
     } else {
-      err.status = 400;
+      err.status = 500;
+      err.message = 'Internal server error';
     }
     next(err);
   }
@@ -38,10 +39,10 @@ export const getAllByParams: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const getById: RequestHandler = async (req, res, next) => {
+export const getById: RequestHandler<{ id: string }> = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const movie = await getMovieById(id as string)
+    const movie = await getMovieById(id);
 
     if (!movie) {
       const err: HttpError = new Error('Movie not found');
@@ -55,12 +56,12 @@ export const getById: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const update: RequestHandler = async (req, res, next) => {
+export const update: RequestHandler<{ id: string }> = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { title, description, releaseYear, genre, directorId } = req.body;
 
-    const movie = await updateMovie(id as string, {
+    const movie = await updateMovie(id, {
       title,
       description,
       releaseYear,
@@ -80,23 +81,27 @@ export const update: RequestHandler = async (req, res, next) => {
     } else if (err.message === 'Director not found') {
       err.status = 404;
     } else {
-      err.status = 400;
+      err.status = 500;
+      err.message = 'Internal server error';
     }
 
     next(err);
   }
 };
 
-export const remove: RequestHandler = async (req, res, next) => {
+export const remove: RequestHandler<{ id: string }> = async (req, res, next) => {
   try {
     const { id } = req.params;
-    await deleteMovie(id as string);
+    await deleteMovie(id);
     res.status(204).send();
   } catch (error) {
     const err = error as HttpError;
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       err.status = 404;
       err.message = 'Movie not found';
+    } else {
+      err.status = 500;
+      err.message = 'Internal server error';
     }
     next(err);
   }
