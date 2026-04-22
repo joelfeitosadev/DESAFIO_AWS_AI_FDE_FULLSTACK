@@ -1,25 +1,28 @@
 import { Prisma } from '@prisma/client';
 import type { RequestHandler } from 'express';
 import { createMovie, getAllMoviesByParams, getMovieById, updateMovie, deleteMovie } from '../services/movieService.js';
+import type { HttpError } from './directorController.js'
 
-export const create: RequestHandler = async (req, res) => {
+export const create: RequestHandler = async (req, res, next) => {
   try {
     const { title, description, releaseYear, genre, directorId } = req.body;
     const movie = await createMovie({ title, description, releaseYear, genre, directorId });
 
     res.status(201).json(movie);
   } catch (error) {
-    if (error instanceof Error) {
-      if (error.message.includes('already exists')) {
-        return res.status(409).json({ error: error.message });
-      }
-      return res.status(400).json({ error: error.message });
+    const err = error as HttpError;
+    if (err.message.includes('already exists')) {
+      err.status = 409;
+    } else if (err.message === 'Director not found') {
+      err.status = 404;
+    } else {
+      err.status = 400;
     }
-    res.status(500).json({ error: 'Internal server error' });
+    next(err);
   }
 };
 
-export const getAllByParams: RequestHandler = async (req, res) => {
+export const getAllByParams: RequestHandler = async (req, res, next) => {
   try {
     const { title, genre, releaseYear } = req.query;
     const filters: { title?: string; genre?: string; releaseYear?: number } = {};
@@ -31,26 +34,28 @@ export const getAllByParams: RequestHandler = async (req, res) => {
     const movies = await getAllMoviesByParams(filters);
     res.status(200).json(movies);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    next(error);
   }
 };
 
-export const getById: RequestHandler = async (req, res) => {
+export const getById: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
     const movie = await getMovieById(id as string)
 
     if (!movie) {
-      res.status(404).json({ error: 'Movie not found' });
+      const err: HttpError = new Error('Movie not found');
+      err.status = 404;
+      return next(err);
     }
 
     res.status(200).json(movie)
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    next(error);
   }
 };
 
-export const update: RequestHandler = async (req, res) => {
+export const update: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { title, description, releaseYear, genre, directorId } = req.body;
@@ -65,26 +70,34 @@ export const update: RequestHandler = async (req, res) => {
 
     res.status(200).json(movie);
   } catch (error) {
+    const err = error as HttpError;
+
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-      return res.status(404).json({ error: 'Movie not found' }); // Estava Director
+      err.status = 404;
+      err.message = 'Movie not found';
+    } else if (err.message.includes('already exists')) {
+      err.status = 409;
+    } else if (err.message === 'Director not found') {
+      err.status = 404;
+    } else {
+      err.status = 400;
     }
-    if (error instanceof Error) {
-      if (error.message.includes('already exists')) return res.status(409).json({ error: error.message });
-      return res.status(400).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal server error' });
+
+    next(err);
   }
 };
 
-export const remove: RequestHandler = async (req, res) => {
+export const remove: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
     await deleteMovie(id as string);
     res.status(204).send();
   } catch (error) {
+    const err = error as HttpError;
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-      return res.status(404).json({ error: 'Movie not found' }); // Estava Director
+      err.status = 404;
+      err.message = 'Movie not found';
     }
-    res.status(500).json({ error: 'Internal server error' });
+    next(err);
   }
 };

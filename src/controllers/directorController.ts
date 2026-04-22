@@ -2,31 +2,33 @@ import { Prisma } from '@prisma/client';
 import type { RequestHandler} from 'express';
 import { createDirector, getAllDirectors, getDirectorById, updateDirector, deleteDirectorById, getDirectorMovies } from '../services/directorService.js'
 
-export const create: RequestHandler = async (req, res) => {
+export interface HttpError extends Error {
+  status?: number;
+}
+
+export const create: RequestHandler = async (req, res, next) => {
   try {
     const { name } = req.body;
     const director = await createDirector({ name });
-    
+
     res.status(201).json(director);
   } catch (error) {
-    if (error instanceof Error && error.message.includes('already exists')) {
-      return res.status(409).json({ error: error.message });
-    }
-
-    res.status(400).json({ error: 'Invalid data' });
+    const err = error as HttpError; // Casting controlado para a nossa interface
+    err.status = err.message.includes('already exists') ? 409 : 400;
+    next(err);
   }
 };
 
-export const getAll: RequestHandler = async (req, res) => {
+export const getAll: RequestHandler = async (req, res, next) => {
   try {
     const directors = await getAllDirectors();
     res.status(200).json(directors);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    next(error);
   }
 };
 
-export const getById: RequestHandler = async (req, res) => {
+export const getById: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
     const director = await getDirectorById(id as string);
@@ -36,64 +38,61 @@ export const getById: RequestHandler = async (req, res) => {
     }
     res.status(200).json(director);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    next(error);
   }
 };
 
-export const update: RequestHandler = async (req, res) => {
+export const update: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { name } = req.body;
     const director = await updateDirector(id as string, { name });
     res.status(200).json(director);
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2025') {
-        return res.status(404).json({ error: 'Director not found' });
-      }
+    const err = error as HttpError;
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      err.status = 404;
+      err.message = 'Director not found';
+    } else {
+      err.status = err.message.includes('already exists') ? 409 : 400;
     }
-    if (error instanceof Error) {
-      if (error.message.includes('already exists')) {
-        return res.status(409).json({ error: error.message });
-      }
-      return res.status(400).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal server error' });
+
+    next(err);
   }
 };
 
-export const remove: RequestHandler = async (req, res) => {
+export const remove: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
     await deleteDirectorById(id as string);
     res.status(204).send();
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2025') {
-        return res.status(404).json({ error: 'Director not found' });
-      }
-    }
-    if (error instanceof Error) {
-      if (error.message.includes('linked movies')) {
-        return res.status(400).json({ error: error.message });
-      }
+    const err = error as HttpError;
 
-      return res.status(400).json({ error: error.message });
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      err.status = 404;
+      err.message = 'Director not found';
+    } else if (err.message.includes('linked movies')) {
+      err.status = 409;
     }
 
-    res.status(500).json({ error: 'Internal server error' });
+    next(err);
   }
 };
 
-export const getMovies: RequestHandler = async (req, res) => {
+export const getMovies: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
     const movies = await getDirectorMovies(id as string);
     res.status(200).json(movies);
   } catch (error) {
-    if (error instanceof Error && error.message === 'Director not found') {
-      return res.status(404).json({ error: error.message });
+    const err = error as HttpError;
+
+    if (err.message === 'Director not found') {
+      err.status = 404;
     }
-    res.status(500).json({ error: 'Internal server error' });
+
+    next(err);
   }
 };
