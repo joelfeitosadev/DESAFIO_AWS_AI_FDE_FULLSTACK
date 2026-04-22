@@ -46,3 +46,24 @@ export const getAllMoviesByParams = async (filters: MovieFilters) => {
 export const getMovieById = async (id: string) => {
   return prisma.movie.findUnique({ where: { id } });
 };
+
+export const updateMovie = async (id: string, data: CreateMovieInput) => {
+  const director = await prisma.director.findUnique({ where: { id: data.directorId } });
+
+  if(!director) {
+    throw new Error('Director not found');
+  }
+
+  const existingMovie = await prisma.movie.findFirst({
+    where: {
+      title: data.title,
+      releaseYear: data.releaseYear,
+      directorId: data.directorId,
+    },
+  });
+
+  return prisma.movie.update({
+    where: { id },
+    data,
+  });
+};
