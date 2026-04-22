@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 import type { RequestHandler} from 'express';
-import { createDirector, getAllDirectors, getDirectorById } from '../services/directorService.js'
+import { createDirector, getAllDirectors, getDirectorById, updateDirector } from '../services/directorService.js'
 
 export const create: RequestHandler = async (req, res) => {
   try {
@@ -34,4 +34,26 @@ export const getById: RequestHandler = async (req, res) => {
   }
 
   res.status(200).json(director);
+};
+
+export const update: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+    const director = await updateDirector(id as string, { name });
+    res.status(200).json(director);
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        return res.status(404).json({ error: 'Director not found' });
+      }
+    }
+    if (error instanceof Error) {
+      if (error.message.includes('already exists')) {
+        return res.status(409).json({ error: error.message });
+      }
+      return res.status(400).json({ error: error.message });
+    }
+    res.status(500).json({ error: 'Internal server error' });
+  }
 };

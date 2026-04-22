@@ -20,3 +20,15 @@ export const getAllDirectors = async () => {
 export const getDirectorById = async (id: string) => {
   return prisma.director.findUnique({ where: { id } });
 };
+
+export const updateDirector = async (id: string, data: DirectorInput) => {
+  const existingName = await prisma.director.findUnique({ where: { name: data.name } });
+  if (existingName && existingName.id !== id) {
+    throw new Error('Director name already exists');
+  }
+
+  return prisma.director.update({
+    where: { id },
+    data: { name: data.name }
+  });
+};
