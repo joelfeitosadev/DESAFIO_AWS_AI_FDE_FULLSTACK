@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 import type { RequestHandler} from 'express';
-import { createDirector, getAllDirectors, getDirectorById, updateDirector } from '../services/directorService.js'
+import { createDirector, getAllDirectors, getDirectorById, updateDirector, deleteDirectorById } from '../services/directorService.js'
 
 export const create: RequestHandler = async (req, res) => {
   try {
@@ -54,6 +54,29 @@ export const update: RequestHandler = async (req, res) => {
       }
       return res.status(400).json({ error: error.message });
     }
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const remove: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await deleteDirectorById(id as string);
+    res.status(204).send();
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        return res.status(404).json({ error: 'Director not found' });
+      }
+    }
+    if (error instanceof Error) {
+      if (error.message.includes('linked movies')) {
+        return res.status(400).json({ error: error.message });
+      }
+
+      return res.status(400).json({ error: error.message });
+    }
+
     res.status(500).json({ error: 'Internal server error' });
   }
 };

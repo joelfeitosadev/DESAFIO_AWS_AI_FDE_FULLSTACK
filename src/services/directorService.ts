@@ -32,3 +32,12 @@ export const updateDirector = async (id: string, data: DirectorInput) => {
     data: { name: data.name }
   });
 };
+
+export const deleteDirectorById = async (id: string) => {
+  const hasMovies = await prisma.movie.findFirst({ where: { directorId: id } })
+  if (hasMovies) {
+    throw new Error('Cannot delete director with linked movies');
+  }
+
+  return prisma.director.delete({ where: { id }});
+}
