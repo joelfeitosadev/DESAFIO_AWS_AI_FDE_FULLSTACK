@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/dist server.js",
+    "start": "node dist/swagger.js && node dist/src/server.js",
     "test": "vitest"
   },
   "dependencies": {

@@ -6,9 +6,11 @@ import { requestLogger } from './middlewares/logger.js';
 import type { Request, Response, NextFunction } from 'express';
 import type { HttpError } from './interfaces/HttpError.js'
 import swaggerUi from 'swagger-ui-express';
+import path from 'path'; 
 import fs from 'fs';
 
-const swaggerDocument = JSON.parse(fs.readFileSync(new URL('../swagger-output.json', import.meta.url), 'utf-8'));
+const swaggerPath = path.join(process.cwd(), 'swagger-output.json');
+const swaggerDocument = JSON.parse(fs.readFileSync(swaggerPath, 'utf-8'));
 
 export const app = express();
 const PORT = process.env.PORT || 3000;
