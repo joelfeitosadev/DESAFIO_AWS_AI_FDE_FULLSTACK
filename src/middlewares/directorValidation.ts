@@ -8,7 +8,7 @@ export const validateDirector: RequestHandler = (req, res, next) => {
   }
 
   if (name.length < 3 || name.length > 50) {
-    return res.status(400).json({ error: 'Nmae must be a between 3 and 50 characters' });
+    return res.status(400).json({ error: 'Name must be a between 3 and 50 characters' });
   }
 
   next();

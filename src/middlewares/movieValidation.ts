@@ -8,7 +8,7 @@ export const validateMovie: RequestHandler = (req, res, next) => {
   }
 
   if (description && description.length > 255) {
-    return res.status(400).json({ error: 'desccription must be at most 255 characters' });
+    return res.status(400).json({ error: 'description must be at most 255 characters' });
   }
 
   const currentYear = new Date().getFullYear();
