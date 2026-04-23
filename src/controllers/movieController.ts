@@ -1,6 +1,6 @@
-import { Prisma } from '@prisma/client';
 import type { RequestHandler } from 'express';
 import { createMovie, getAllMoviesByParams, getMovieById, updateMovie, deleteMovie } from '../services/movieService.js';
+import { NotFoundError } from '../interfaces/HttpError.js';
 import type { HttpError } from '../interfaces/HttpError.js'
 
 export const create: RequestHandler = async (req, res, next) => {
@@ -11,13 +11,12 @@ export const create: RequestHandler = async (req, res, next) => {
     res.status(201).json(movie);
   } catch (error) {
     const err = error as HttpError;
-    if (err.message.includes('already exists')) {
-      err.status = 409;
-    } else if (err.message === 'Director not found') {
+    if (error instanceof NotFoundError) {
       err.status = 404;
+    } else if (err.message?.includes('already exists')) {
+      err.status = 409;
     } else {
       err.status = 500;
-      err.message = 'Internal server error';
     }
     next(err);
   }
@@ -52,39 +51,27 @@ export const getById: RequestHandler<{ id: string }> = async (req, res, next) =>
 
     res.status(200).json(movie)
   } catch (error) {
-    next(error);
+    const err = error as HttpError;
+    err.status = (error instanceof NotFoundError) ? 404 : 500;
+    next(err);
   }
 };
 
 export const update: RequestHandler<{ id: string }> = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { title, description, releaseYear, genre, directorId } = req.body;
-
-    const movie = await updateMovie(id, {
-      title,
-      description,
-      releaseYear,
-      genre,
-      directorId,
-    });
-
+    const movie = await updateMovie(id, req.body);
     res.status(200).json(movie);
   } catch (error) {
     const err = error as HttpError;
 
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+    if (error instanceof NotFoundError) {
       err.status = 404;
-      err.message = 'Movie not found';
-    } else if (err.message.includes('already exists')) {
+    } else if (err.message?.includes('already exists')) {
       err.status = 409;
-    } else if (err.message === 'Director not found') {
-      err.status = 404;
     } else {
       err.status = 500;
-      err.message = 'Internal server error';
     }
-
     next(err);
   }
 };
@@ -96,12 +83,11 @@ export const remove: RequestHandler<{ id: string }> = async (req, res, next) => 
     res.status(204).send();
   } catch (error) {
     const err = error as HttpError;
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+
+    if (error instanceof NotFoundError) {
       err.status = 404;
-      err.message = 'Movie not found';
     } else {
       err.status = 500;
-      err.message = 'Internal server error';
     }
     next(err);
   }
