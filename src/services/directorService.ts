@@ -1,47 +1,40 @@
-import { prisma } from '../database/index.js';
+import * as directorRepository from '../repositories/directorRepository.js';
 import type { DirectorInput } from '../interfaces/Director.js';
 
 export const createDirector = async (data: DirectorInput) => {
-  const exists = await prisma.director.findUnique({ where: { name: data.name } });
-  if (exists) {
-    throw new Error('Director already exists');
-  }
+  const exists = await directorRepository.findByName(data.name);
+  if (exists) throw new Error('Director already exists');
 
-  return prisma.director.create({ data: { name: data.name } });
+  return directorRepository.create(data);
 };
 
 export const getAllDirectors = async () => {
-  return prisma.director.findMany();
+  return directorRepository.findAll();
 };
 
 export const getDirectorById = async (id: string) => {
-  return prisma.director.findUnique({ where: { id } });
+  return directorRepository.findById(id);
 };
 
 export const updateDirector = async (id: string, data: DirectorInput) => {
-  const existingName = await prisma.director.findUnique({ where: { name: data.name } });
+  const existingName = await directorRepository.findByName(data.name);
   if (existingName && existingName.id !== id) {
     throw new Error('Director name already exists');
   }
 
-  return prisma.director.update({
-    where: { id },
-    data: { name: data.name }
-  });
+  return directorRepository.update(id, data);
 };
 
 export const deleteDirectorById = async (id: string) => {
-  const hasMovies = await prisma.movie.findFirst({ where: { directorId: id } })
-  if (hasMovies) {
-    throw new Error('Cannot delete director with linked movies');
-  }
+  const hasMovies = await directorRepository.findFirstMovieByDirectorId(id);
+  if (hasMovies) throw new Error('Cannot delete director with linked movies');
 
-  return prisma.director.delete({ where: { id }});
-}
+  return directorRepository.deleteById(id);
+};
 
 export const getDirectorMovies = async (id: string) => {
-  const director = await prisma.director.findUnique({ where: { id } });
+  const director = await directorRepository.findById(id);
   if (!director) throw new Error('Director not found');
 
-  return prisma.movie.findMany({ where: { directorId: id } });
+  return directorRepository.findMoviesByDirectorId(id);
 };
