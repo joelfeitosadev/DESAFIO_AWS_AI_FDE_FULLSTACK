@@ -62,10 +62,7 @@ O foco principal de execução desta aplicação é via **Docker**. O `docker-co
     cd DESAFIO_AWS_AI_FDE_FULLSTACK
     ```
 
-2.  **Configure as variáveis de ambiente:**
-    Renomeie o arquivo `.env.example` na raiz do projeto para `.env`. Ele já contém a URL de conexão com o banco e a porta configurada para rodar a aplicação local.
-
-3.  **Suba os containers:**
+2.  **Suba os containers:**
     Na raiz do projeto, execute:
     ```bash
     docker compose up -d --build
@@ -83,17 +80,21 @@ O foco principal de execução desta aplicação é via **Docker**. O `docker-co
     npm install
     ```
 
-2.  **Gere o Prisma Client:**
+2.  **Configure as variáveis de ambiente:**
+    Renomeie o arquivo `.env.example` na raiz do projeto para `.env`. Ele já contém a URL de conexão com o banco e a porta configurada para rodar a aplicação local.
+
+
+3.  **Gere o Prisma Client:**
     Necessário para criar a tipagem do banco de dados na sua máquina local, permitindo que os testes e a IDE reconheçam os modelos.
     ```bash
     npx prisma generate
     ```
 
-3.  **Inicie a aplicação:**
-    Como o arquivo `.env` está configurado com `PORT=3001`, a aplicação local não entrará em conflito com o Docker (que usa a porta 3000).
+4.  **Inicie a aplicação:**
     ```bash
     npm run dev
     ```
+*A API estará acessível em `http://localhost:3000`.*
 
 ### Como rodar os testes:
 
@@ -229,10 +230,7 @@ The primary execution method is via **Docker**. `docker-compose` will spin up tw
     cd DESAFIO_AWS_AI_FDE_FULLSTACK
     ```
 
-2.  **Configure environment variables:**
-    Rename the `.env.example` file in the root directory to `.env`. It already contains the database connection URL and the port configured for local execution.
-
-3.  **Start the containers:**
+2.  **Start the containers:**
     In the root directory, run:
     ```bash
     docker compose up -d --build
@@ -250,17 +248,21 @@ The primary execution method is via **Docker**. `docker-compose` will spin up tw
     npm install
     ```
 
-2.  **Generate Prisma Client:**
+2.  **Configure environment variables:**
+    Rename the `.env.example` file in the root directory to `.env`. It already contains the database connection URL and the port configured for local execution.
+
+3.  **Generate Prisma Client:**
     Necessary to create database typing on your local machine for tests and IDE recognition.
     ```bash
     npx prisma generate
     ```
 
-3.  **Start the application:**
+4.  **Start the application:**
     Since the `.env` file is configured with `PORT=3001`, the local app will not conflict with Docker (which uses 3000).
     ```bash
     npm run dev
     ```
+    *The API will be accessible at `http://localhost:3000`.*
 
 ### How to run tests:
 
