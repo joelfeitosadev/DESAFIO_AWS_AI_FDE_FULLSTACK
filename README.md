@@ -69,7 +69,12 @@ O foco principal de execução desta aplicação é via **Docker**. O `docker-co
     ```
     *A API via Docker estará acessível em `http://localhost:3000`.* O banco de dados estará rodando internamente na porta `3306`.
 
----
+### Visualizar Logs:
+
+1.  **Para acompanhar os logs da aplicação em tempo real via Docker:**
+    ```bash
+    docker logs -f movie-api-app
+    ```
 
 ## 🧪 Como Executar a Aplicação Localmente e Rodar os Testes
 
@@ -236,6 +241,14 @@ The primary execution method is via **Docker**. `docker-compose` will spin up tw
     docker compose up -d --build
     ```
     *The Docker API will be accessible at `http://localhost:3000`.* The database will run internally on port `3306`.
+
+
+### View Logs:
+
+1.  **To monitor application logs in real-time via Docker:**
+    ```bash
+    docker logs -f movie-api-app
+    ```
 
 ---
 
