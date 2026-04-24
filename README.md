@@ -94,7 +94,7 @@ O foco principal de execução desta aplicação é via **Docker**. O `docker-co
     ```bash
     npm run dev
     ```
-*A API estará acessível em `http://localhost:3000`.*
+*A API estará acessível em `http://localhost:3001`.*
 
 ### Como rodar os testes:
 
