@@ -262,7 +262,7 @@ The primary execution method is via **Docker**. `docker-compose` will spin up tw
     ```bash
     npm run dev
     ```
-    *The API will be accessible at `http://localhost:3000`.*
+    *The API will be accessible at `http://localhost:3001`.*
 
 ### How to run tests:
 
