@@ -8,6 +8,8 @@ services:
       MYSQL_DATABASE: movies_db
     ports:
       - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
 
   app:
     build: .
@@ -16,6 +18,10 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
-      - DATABASE_URL=mysql://root:root@localhost:3306/movies_db
+      - DATABASE_URL=mysql://root:root@db:3306/movies_db
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    command: sh -c "npx prisma migrate deploy && node dist/src/server.js"
+
+volumes:
+  mysql_data:
