@@ -79,7 +79,7 @@ describe('Movie Routes', () => {
       prismaMock.movie.findUnique.mockResolvedValue({ id: '10', ...validPayload });
       const response = await request(app).get('/movies/10');
       expect(response.status).toBe(200);
-      expect(response.body.title).toBe('Dune'); // Verifica integridade
+      expect(response.body.title).toBe('Dune'); 
     });
 
     it('Deve retornar 404 se não achar', async () => {
