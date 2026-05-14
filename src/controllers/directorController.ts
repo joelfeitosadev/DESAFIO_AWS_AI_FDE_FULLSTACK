@@ -11,7 +11,7 @@ export const create: RequestHandler = async (req, res, next) => {
     res.status(201).json(director);
   } catch (error) {
     const err = error as HttpError;
-    err.status = (err.message?.includes('already exists')) ? 409 : 400;
+    err.status = (err.message?.includes('already exists')) ? 409 : 500;
     next(err);
   }
 };

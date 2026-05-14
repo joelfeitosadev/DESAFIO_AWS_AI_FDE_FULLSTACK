@@ -33,6 +33,13 @@ describe('Director Routes', () => {
       expect(response.status).toBe(409);
       expect(response.body).toHaveProperty('error');
     });
+
+    it('Deve retornar 500 em erro interno', async () => {
+      prismaMock.director.findUnique.mockRejectedValue(new Error('Database error'));
+      const response = await request(app).post('/directors').send({ name: 'Scorsese' });
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('error');
+    });
   });
 
   describe('GET /directors', () => {
@@ -63,6 +70,13 @@ describe('Director Routes', () => {
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('error');
     });
+
+    it('Deve retornar 500 em erro interno', async () => {
+      prismaMock.director.findUnique.mockRejectedValue(new Error('Database error'));
+      const response = await request(app).get('/directors/1');
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('error');
+    });
   });
 
   describe('PUT /directors/:id', () => {
@@ -78,6 +92,26 @@ describe('Director Routes', () => {
       prismaMock.director.update.mockRejectedValue(new Prisma.PrismaClientKnownRequestError('', { code: 'P2025', clientVersion: '5' }));
       const response = await request(app).put('/directors/999').send({ name: 'Nolan 2' });
       expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty('error');
+    });
+
+    it('Deve retornar 400 se nome menor que 3 chars', async () => {
+      const response = await request(app).put('/directors/1').send({ name: 'A' });
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+    });
+
+    it('Deve retornar 409 se nome já existe', async () => {
+      prismaMock.director.findUnique.mockResolvedValue({ id: '2', name: 'Nolan' });
+      const response = await request(app).put('/directors/1').send({ name: 'Nolan' });
+      expect(response.status).toBe(409);
+      expect(response.body).toHaveProperty('error');
+    });
+
+    it('Deve retornar 500 em erro interno', async () => {
+      prismaMock.director.findUnique.mockRejectedValue(new Error('Database error'));
+      const response = await request(app).put('/directors/1').send({ name: 'Nolan 2' });
+      expect(response.status).toBe(500);
       expect(response.body).toHaveProperty('error');
     });
   });
@@ -96,6 +130,21 @@ describe('Director Routes', () => {
       expect(response.status).toBe(409);
       expect(response.body).toHaveProperty('error');
     });
+
+    it('Deve retornar 404 se não achar', async () => {
+      prismaMock.movie.findFirst.mockResolvedValue(null);
+      prismaMock.director.delete.mockRejectedValue(new Prisma.PrismaClientKnownRequestError('', { code: 'P2025', clientVersion: '5' }));
+      const response = await request(app).delete('/directors/999');
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty('error');
+    });
+
+    it('Deve retornar 500 em erro interno', async () => {
+      prismaMock.movie.findFirst.mockRejectedValue(new Error('Database error'));
+      const response = await request(app).delete('/directors/1');
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('error');
+    });
   });
 
   describe('GET /directors/:id/movies', () => {
@@ -104,6 +153,20 @@ describe('Director Routes', () => {
       prismaMock.movie.findMany.mockResolvedValue([]);
       const response = await request(app).get('/directors/1/movies');
       expect(response.status).toBe(200);
+    });
+
+    it('Deve retornar 404 se diretor não existir', async () => {
+      prismaMock.director.findUnique.mockResolvedValue(null);
+      const response = await request(app).get('/directors/999/movies');
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty('error');
+    });
+
+    it('Deve retornar 500 em erro interno', async () => {
+      prismaMock.director.findUnique.mockRejectedValue(new Error('Database error'));
+      const response = await request(app).get('/directors/1/movies');
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('error');
     });
   });
 });
