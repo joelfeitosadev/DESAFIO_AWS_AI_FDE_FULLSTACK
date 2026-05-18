@@ -14,6 +14,12 @@ describe('Director Routes', () => {
       expect(response.status).toBe(201);
     });
 
+    it('Deve retornar 400 se nome não for uma string', async () => {
+      const response = await request(app).post('/directors').send({ name: 123 });
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+    });
+
     it('Deve retornar 400 se nome menor que 3 chars', async () => {
       const response = await request(app).post('/directors').send({ name: 'A' });
       expect(response.status).toBe(400);
@@ -54,6 +60,15 @@ describe('Director Routes', () => {
       const response = await request(app).get('/directors');
       expect(response.status).toBe(500);
       expect(response.body).toHaveProperty('error');
+    });
+
+    it('Deve retornar 500 com mensagem padrão se erro não tiver message', async () => {
+      const error = new Error();
+      error.message = '';
+      prismaMock.director.findMany.mockRejectedValue(error);
+      const response = await request(app).get('/directors');
+      expect(response.status).toBe(500);
+      expect(response.body.error).toBe('Internal server error');
     });
   });
 

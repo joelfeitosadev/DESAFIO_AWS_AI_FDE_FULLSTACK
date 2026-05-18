@@ -57,12 +57,19 @@ describe('Movie Routes', () => {
       expect(response.status).toBe(409);
       expect(response.body).toHaveProperty('error');
     });
+
+    it('Deve retornar 500 em erro interno', async () => {
+      prismaMock.director.findUnique.mockRejectedValue(new Error('Database error'));
+      const response = await request(app).post('/movies').send(validPayload);
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('error');
+    });
   });
 
   describe('GET /movies', () => {
     it('Deve retornar 200 com query params', async () => {
       prismaMock.movie.findMany.mockResolvedValue([]);
-      const response = await request(app).get('/movies?title=Dune&releaseYear=2021');
+      const response = await request(app).get('/movies?title=Dune&releaseYear=2021&genre=Sci-Fi');
       expect(response.status).toBe(200);
     });
 
@@ -88,6 +95,21 @@ describe('Movie Routes', () => {
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('error');
     });
+
+    it('Deve retornar 500 em erro interno', async () => {
+      prismaMock.movie.findUnique.mockRejectedValue(new Error('Database error'));
+      const response = await request(app).get('/movies/10');
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('error');
+    });
+
+    it('Deve retornar 404 se NotFoundError for lançado (cobertura do catch)', async () => {
+      const { NotFoundError } = await import('../../../src/interfaces/HttpError.js');
+      prismaMock.movie.findUnique.mockRejectedValue(new NotFoundError('Not found'));
+      const response = await request(app).get('/movies/10');
+      expect(response.status).toBe(404);
+      expect(response.body.error).toBe('Not found');
+    });
   });
 
   describe('PUT /movies/:id', () => {
@@ -109,6 +131,24 @@ describe('Movie Routes', () => {
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('error');
     });
+
+    it('Deve retornar 409 se atualizar para filme já existente', async () => {
+      prismaMock.director.findUnique.mockResolvedValue({ id: '1', name: 'Denis' });
+      prismaMock.movie.findFirst.mockResolvedValue({ id: '11', ...validPayload });
+
+      const response = await request(app).put('/movies/10').send(validPayload);
+      expect(response.status).toBe(409);
+      expect(response.body).toHaveProperty('error');
+    });
+
+    it('Deve retornar 500 em erro interno no update', async () => {
+      prismaMock.director.findUnique.mockResolvedValue({ id: '1', name: 'Denis' });
+      prismaMock.movie.findFirst.mockResolvedValue(null);
+      prismaMock.movie.update.mockRejectedValue(new Error('Database error'));
+      const response = await request(app).put('/movies/10').send(validPayload);
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('error');
+    });
   });
 
   describe('DELETE /movies/:id', () => {
@@ -122,6 +162,13 @@ describe('Movie Routes', () => {
       prismaMock.movie.delete.mockRejectedValue(new Prisma.PrismaClientKnownRequestError('', { code: 'P2025', clientVersion: '5' }));
       const response = await request(app).delete('/movies/999');
       expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty('error');
+    });
+
+    it('Deve retornar 500 em erro interno', async () => {
+      prismaMock.movie.delete.mockRejectedValue(new Error('Database error'));
+      const response = await request(app).delete('/movies/10');
+      expect(response.status).toBe(500);
       expect(response.body).toHaveProperty('error');
     });
   });
